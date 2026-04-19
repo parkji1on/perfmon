@@ -870,6 +870,8 @@ D/SysinfoRepository: Received 15 lines
 2. Android Studio 실행하여 GitHub 탭에서 로그인 정보 입력
 3. Repository URL 팁에서 Clone Repository 실행
 4. URL에 https://github.com/iipeace/perfmon 입력 후 Clone 버튼 누르기
+5. Trust Project 클릭
+6. Gradle sync 자동 시작 (최초 1회 Gradle 8.7 다운로드 필요)
 
 #### 1단계: 프로젝트 열기 (0단계 진행하지 않고 이미 수동으로 환경 설정한 경우)
 
@@ -934,7 +936,7 @@ Tools → Device Manager
 #### 2단계: 가상 기기 생성
 
 1. **+** 버튼 클릭 → **Create Virtual Device**
-2. **Phone** 카테고리에서 기기 선택 (예: Pixel 6) → **Next**
+2. **Automotive** 카테고리에서 기기 선택 (예: Automotive Ultrawide) → **Next**
 3. 시스템 이미지 선택:
    - API Level **26 이상** 선택 (앱 minSdk = 26)
    - 권장: **API 35 (Android 15)**, ABI: `x86_64`
@@ -947,18 +949,25 @@ Tools → Device Manager
 - 또는 Android Studio 상단 기기 선택 드롭다운에서 AVD 선택 후 Run (▶)
 
 #### 4단계: 에뮬레이터에서 서버 연결 설정
+1. Guider 설치
+   - https:/github.com/iipeace/guider/tree/master/guider에서 guider.py와 guider.conf 다운로드
+   - adb.exe root 실행
+   - adb.exe push guider.py /data 실행
+   - adb.exe push guider.conf /data 실행
+2. android python 설치
+   - https://github.com/iipeace/portable/tree/master/python/python3.11.13_android_x64.tgz 다운로드
+   - C:\Users\사용자이름\AppData\Local\Android\Sdk\platform-tools에서 cmd 실행 (Windows)
+   - adb.exe root 실행
+   - adb.exe push python3.11.13_android_x64.tgz /data 실행
+   - adb.exe shell 실행
+   - cd /data 실행
+   - tar xvfz python3.11.13_android_x64.tgz 실행
+   - cd python3.11.13_android_x64 실행
+   - . ./env.sh 실행
+3. Guider 실행
+   - python3 /data/guider.py ctop -o -q TCPSERVER:55555 실행
 
-에뮬레이터는 호스트 PC의 `127.0.0.1`에 직접 접근할 수 없습니다.
-에뮬레이터에서 `10.0.2.2`가 호스트 PC의 localhost에 해당합니다.
-
-**방법 A — adb 포트 포워딩 (권장):**
-```bash
-# 에뮬레이터의 55555 포트를 호스트 PC의 55555 포트로 포워딩
-adb forward tcp:55555 tcp:55555
-```
-이 방법을 쓰면 앱 코드(`ServerConfig.kt`)를 수정하지 않아도 됩니다.
-
-**방법 B — 서버 주소 직접 변경:**
+**서버 주소 직접 변경:**
 `app/src/main/java/com/oss/perfmon/config/ServerConfig.kt`에서 HOST 수정:
 ```kotlin
 const val HOST = "10.0.2.2"  // 에뮬레이터에서 호스트 PC의 localhost
